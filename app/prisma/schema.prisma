@@ -1,0 +1,57 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  reviews   Review[]
+}
+
+model Novel {
+  id          Int       @id @default(autoincrement())
+  title       String
+  author      String
+  category    String
+  description String
+  cover       String
+  rating      Float     @default(0.0)
+  views       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  chapters    Chapter[]
+  reviews     Review[]
+}
+
+model Chapter {
+  id        Int      @id @default(autoincrement())
+  number    Int
+  title     String
+  content   String
+  novelId   Int
+  novel     Novel    @relation(fields: [novelId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id      Int    @id @default(autoincrement())
+  comment String
+  rating  Int
+  userId  Int
+  novelId Int
+  user    User   @relation(fields: [userId], references: [id])
+  novel   Novel  @relation(fields: [novelId], references: [id])
+}
